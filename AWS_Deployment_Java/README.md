@@ -1,15 +1,15 @@
-#Java Spring Deployment with AWS
-***
-##EC2 Setup
+# Java Spring Deployment with AWS
 
-***
-##MySQL and Data Export
+## EC2 Setup
 
-***
-##Apache Setup
 
-***
-##Spring Boot Setup
+## MySQL and Data Export
 
-***
-##JDK and systemd
+
+## Apache Setup
+
+
+## Spring Boot Setup
+
+
+## JDK and systemd
