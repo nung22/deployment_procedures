@@ -1,6 +1,14 @@
 # Java Spring Deployment with AWS
+### Table of Contents
 
-## EC2 Setup
+1. [EC2 Setup](#section1)
+2. [MySQL & Data Export](#section2)
+3. [Apache Setup](#section3)
+4. [Spring Boot Setup](#section4)
+5. [JDK & systemd](#section5)
+***
+
+## EC2 Setup <a name="section1"></a>
 
 ### Set up your server instance on AWS
 
@@ -60,16 +68,16 @@
 >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If you see a pink screen to update __menu.lst__, choose the default option to __keep the local version currently installed__.  
 ***
 
-## MySQL and Data Export
+## MySQL & Data Export <a name="section2"></a>
 
 ***
 
-## Apache Setup
+## Apache Setup <a name="section3"></a>
 
 ***
 
-## Spring Boot Setup
+## Spring Boot Setup <a name="section4"></a>
 
 ***
 
-## JDK and systemd
+## JDK & systemd <a name="section5"></a>
