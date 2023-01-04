@@ -53,15 +53,17 @@
 > chmod 400 keyname.pem
 > ssh -i "keyname.pem" ubuntu@ec2-XXX-XXX-XXX-XXX.compute-1.amazonaws.com
 > ```
+>
 > - __Note__ : In Windows CMD you do not need to run the chmod command.  
 >
-> - You should now be connected to your server instance.  
+>   You should now be connected to your server instance.  
 
 > 9. [ ] Finally, run these two commands to make sure that our system is up to date:
 > ```
 > sudo apt-get update
 > sudo apt-get -y upgradecopy  
 > ```
+>
 > - If you see a pink screen to update __menu.lst__, choose the default option to __keep the local version currently installed__.  
 ***
 
@@ -80,19 +82,62 @@
 > sudo apt-get install mysql-server                      // answer Yes when prompted!
 > sudo apt-get update
 > ```
->     The next steps will allow our Spring Boot project to create a connection to the MySQL database we just installed. 
+>
+> - The next steps will allow our Spring Boot project to create a connection to the MySQL database we just installed. 
 
 > 2. [ ] First log into the MySQL server:
 > ```
 > sudo mysql -uroot -p
 > # enter the same password as MySQL on your computer when prompted
 > ```
->     This step should open up the MySQL shell on your remote server. The next step will allow us to log into the database without using sudo in our ubuntu shell. 
+>
+> - This step should open up the MySQL shell on your remote server. The next step will allow us to log into the database without using sudo in our ubuntu shell. 
 >
 >     Type the following commands, outlined in red, into the MySQL shell:
 >
 >     ***IMPORTANT:*** *change the `your_mysql_password` between the single quotes to the password you used in the above step*
+>
+>![](/AWS_Deployment_Java/assets/sect2.1_step2.png)
 
+> 3. [ ] The next installation will allow us to configure security settings. After exiting the mysql shell, back in your ubuntu remote server, enter the following command:
+> ```
+> sudo mysql_secure_installation
+> ```
+>
+> - There will be a series of prompts to answer. Follow the screen shot below.
+>
+>![](/AWS_Deployment_Java/assets/sect2.1_step3.png)
+>
+
+> 4. [ ] If the above commands worked correctly, you should be able to log into the MySQL shell without sudo:
+> ```
+> mysql -uroot -p
+> # enter password when prompted
+> ```
+>
+> - Next, we will need to set up the database that our project will need. This can easily be done by going to MySQL Workbench and exporting the data we already have.
+>
+
+### Data Export
+
+> 1. Open MySQLWorkbench on the connection that contains the schema of the Spring Boot project you want to deploy.
+
+> 2. Click the "Administration" tab next to the "Schemas" tab.
+>
+
+> 3. Click on the Data Export option, choose your schema, and select "Include Create Schema" checkbox. In the example the name of the schema is "auth," but your schema name will be something different depending on the project you want to deploy.
+>
+>![](/AWS_Deployment_Java/assets/sect2.2_step3.png)
+>    Click "Start Export" and it will dump your data into a SQL file. Once the exporting is completed, MySQLWorkbench will give you the directory where the SQL file is located. In this example, the full path is ```/Users/eduardobaik/dumps/Dump20170720.sql```.
+
+> 4. Copy the contents of the dumped SQL file and paste it in the MySQL shell in your server.
+>
+>![](/AWS_Deployment_Java/assets/sect2.2_step4.gif)
+
+> 5. In MySQL, run ```show databases;``` to see if your schema has been imported correctly. To see the tables of your schema, you can run ```use <<yourSchema>>;``` and ```show tables;```.
+>![](/AWS_Deployment_Java/assets/sect2.2_step5.png)
+
+> 6. To exit MySQL, you can run ```quit```.
 ***
 
 ## Apache Setup <a name="section3"></a>
