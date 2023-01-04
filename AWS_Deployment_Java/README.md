@@ -283,16 +283,19 @@
 >       ```
 >       sudo systemctl daemon-reload
 >       ```
+  
 > 3. Now that we have created the script, we need to make sure that our applications starts on every system boot:
 > 
 >       ```
 >       sudo systemctl enable auth.service
 >       ```
+  
 > 4. Start our service:
 > 
 >       ```
 >       sudo systemctl start auth
 >       ```
+  
 > 5. We can also stop, restart and check the status of our service:
 > 
 >       ```
