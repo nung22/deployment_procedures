@@ -66,28 +66,32 @@
 > - If you see a pink screen to update __menu.lst__, choose the default option to __keep the local version currently installed__.  
 ***
 
-## MySQL & Data Export <a name="section2"></a>
+## MERN Setup <a name="section2"></a>
 
->Now we need to get our project onto GitHub. Change directory (cd) into the folder that contains our client/ and  server/ folders.
+### Push Your Code to GitHub
 
-### Server configuration:
-
->Although we have Linux, our new computer is otherwise empty. Let’s change that so we can start building a server capable of providing content that the rest of the world can access.
-
-### MySQL
-
-> 1. [ ] Next, we will need to install our MySQL server:
+> 1. [ ] We need to get our project onto GitHub. Change directory `cd` into the folder that contains our `client/` and  `server/` folders.
 > ```
-> sudo apt-get install mysql-server                      // answer Yes when prompted!
-> sudo apt-get update
+> ├─ project-name/
+> | ├─ client/
+> | | ├─ node_modules/
+> | | ├─ public/
+> | | ├─ src/
+> | | ├─ package.json
+> | ├─ server/
+> | | ├─ config/
+> | | ├─ controllers/
+> | | ├─ node_modules/
+> | | ├─ models/
+> | | ├─ routes/
+> | | ├─ package.json
+> | | ├─ server.js
 > ```
 >
-> - The next steps will allow our Spring Boot project to create a connection to the MySQL database we just installed. 
 
-> 2. [ ] First log into the MySQL server:
+> 2. [ ] Inside of this project-name folder, we will be making a file called `.gitignore`. The `.gitignore` file will allow us to tell git which files and folders we don't want it to track or commit. As the contents of our node_modules folders are rather large and can easily be re-downloaded we will be making sure these don't get pushed to GitHub.
 > ```
-> sudo mysql -uroot -p
-> # enter the same password as MySQL on your computer when prompted
+> echo node_modules/ > .gitignore
 > ```
 >
 > - This step should open up the MySQL shell on your remote server. The next step will allow us to log into the database without using sudo in our ubuntu shell. 
