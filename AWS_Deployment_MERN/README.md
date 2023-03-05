@@ -148,79 +148,73 @@
 
 ## Config <a name="section3"></a>
 
-> When a HTTP request comes into our EC2 server, Apache will receive the request and use reverse proxy to forward it to our Spring Boot application running on port 9090. In this tab, we will secure copy our application into our server, set up the reverse proxy, and use systemd to run our application.
+### Getting our code onto the server instance
 
-> 1. For our reverse proxy to work, we are going to use the Apache JServ Protocol. In your Spring Boot Application File, add the following code:
+> 1. [ ] Now that we can SSH into our instance, we can install the software needed to run a MERN app. __From your SSH terminal, let's start running some commands.__
+>
+> ```
+> sudo apt update
+> sudo apt install nodejs npm nginx git -y
+> ```
+>
+> - These commands will make sure the server has up to date software, then install: Node.js, Node Package Manager, NGINX (pronounced "engine x"), and git. The "-y" answers yes to the prompt of if you want to install all of this software.
+
+### Node Version
+
+> 1. [ ] By default, we will be getting version 8.10.0 when we install nodejs, and we need to get a more recent version for many of our packages to run happily on the server. To overcome this we will install a __PPA__ (personal package archive) that will allow us to get a newer version of nodejs.
+>
+> ```
+>nodejs -v
+> # this should print out version 10.19.0
+> ```
+>
+> ```
+> curl -sL https://deb.nodesource.com/setup_lts.x -o nodesource_setup.sh
+> sudo bash nodesource_setup.sh
+> sudo apt install nodejs -y
+> node -v
+> # this should now print out version 14.7.0 or newer
+> ```
+>
+> ```
+> sudo apt install build-essential
+> ```
+
+> 2. [ ] Now that we have installed NGINX (our server software), we should be able to navigate our browser to our server's public ip address and see the default NGINX splash screen.
+>
+>     ***IMPORTANT:*** *If you do not see the "Welcome to nginx!" message you either did not install NGINX in the previous step or you did not set up your Security Group correctly.*<br/><br/>
+>       ![](/AWS_Deployment_MERN/assets/sect3.2_step2.png)
+
+> 3. [ ] Now that we have installed git, we can use it to clone our repository that we made in the first step.
 > 
-> ### com.codingdojo.auth.AuthApplication.MERN
 > ```
->package com.codingdojo.auth;
->import org.apache.catalina.connector.Connector;
->import org.apache.coyote.ajp.AbstractAjpProtocol;
->import org.springframework.boot.SpringApplication;
->import org.springframework.boot.autoconfigure.>SpringBootApplication;
->import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
->import org.springframework.context.annotation.Bean;
->@SpringBootApplication
->public class AuthApplication {
->    public static void main(String[] args) {
->        SpringApplication.run(AuthApplication.class, args);
->    }
->    @Bean
->    public TomcatServletWebServerFactory servletContainer() {
->        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
->        Connector ajpConnector = new Connector("AJP/1.3");
->        ajpConnector.setPort(9090);
->        ajpConnector.setSecure(false);
->        ajpConnector.setAllowTrace(false);
->        ajpConnector.setScheme("http");
->        ((AbstractAjpProtocol)ajpConnector.getProtocolHandler()).setSecretRequired(false);
->        tomcat.addAdditionalTomcatConnectors(ajpConnector);
->        return tomcat;
->    }
->}
+> git clone https://github.com/your_github_username/MERN-Deployment.git
 > ```
 
-> 2. Next, we need to package our project into a **war** file.
->
->       - Go to your 'pom.xml' file and Overview tab. If your packaging is jar, change it to war.<br/><br/>
->       ![](/AWS_Deployment_MERN/assets/sect4_step2.1.png)<br/><br/>
->       - Run ```Maven``` -> ```Update Project```<br/><br/>
->       ![](/AWS_Deployment_MERN/assets/sect4_step2.2.png)<br/><br/>
->       - Run ```Run As``` -> ```Maven Install``` (this will create the war file)<br/><br/>
->       ![](/AWS_Deployment_MERN/assets/sect4_step2.3.png)<br/><br/>
+> 4. [ ] Next (to make the following commands more copy-pasta-able) we will export a variable on our server.
+> ```
+> export repoName=MERN-Deployment
+> ```
 
-> 3. STS will build a war file and save it inside the target directory. In this example, the full directory path is: ```/Users/eduardobaik/Desktop/springProjects/auth/target/auth-0.0.1-SNAPSHOT.war```.
->
->       - Navigate to said directory in your terminal and secure copy the war file into the home directory of your EC2 server. You will need your pem file path and your public ip address. For example:<br/><br/>
->       ```
->       scp -i ~/Desktop/springProject.pem auth-0.0.1-SNAPSHOT.war ubuntu@34.228.244.112:~/
->       ```
->       ![](/AWS_Deployment_MERN/assets/sect4_step3.png)<br/><br/>
-
-> 4. Let's create a folder for our application inside of the '/var' directory.
+> 5. [ ] After exporting the variable, we can check to make sure it was set by echoing it. Echo will print the variable out in our terminal.
 > 
->       ```
->       sudo mkdir /var/springApp
->       sudo mv ~/auth-0.0.1-SNAPSHOT.war /var/springApp/
->       ```
+> ```
+> echo $repoName
+> ```
+> - When referring to our variable "repoName" moving forward we will have a "$" at the beginning of it.
 
-> 5. Now, we need to tell Apache to proxy requests to our application. Note: It may prompt you to restart after each command using ```sudo service apache2 restart```.
+### Setting up the Front-End
+
+> 1. [ ] Next we'll cd into the client folder and then delete a folder at /var/www/html. This is where the html from the earlier "Welcome to nginx!" splash screen lives. We are then going to move the production react app code that we built before pushing the code to GitHub to this folder. Lastly we'll restart the nginx service so that it no longer serves the previous welcome message. 
 >
->       - Set up proxy<br/><br/>
->       ```
->       sudo a2enmod proxy
->       sudo a2enmod proxy_ajp
->       ```
->       - Open our virtual host conf file.<br/><br/>
->       ```
->       cd /etc/apache2/sites-available
->       sudo vim 000-default.conf
->       ```
->       - Add the proxy configuration at the bottom. Make sure to have it run on port 9090.<br/><br/>
->       ![](/AWS_Deployment_MERN/assets/sect4_step5.png)
+> ```
+> cd ~/$repoName/client
+> sudo rm -rf /var/www/html 
+> sudo mv build /var/www/html
+> sudo service nginx restart
+> ```
+> - If we navigate our browser to our IP address we should see the Front-End of our project rather than the default NGINX splash screen. If you don't see this go back and try rerunning the previous steps. <br/><br/>
+>
+>   ![](/AWS_Deployment_MERN/assets/sect3.3_step1.png)
 
-> 6. Restart Apache.
-> ```
-> sudo service apache2 restart
-> ```
+### Setting up the Front-End
