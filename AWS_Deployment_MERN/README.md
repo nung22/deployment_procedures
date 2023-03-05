@@ -217,4 +217,140 @@
 >
 >   ![](/AWS_Deployment_MERN/assets/sect3.3_step1.png)
 
-### Setting up the Front-End
+> 2. [ ] __Fixing our Front-End routes__: when we were developing before, our Back-End server was accessible on `http://localhost:8000` but when we deploy our project the Back-End will then be accessible at whatever our IP address happens to be. To fix the links we would essentially need to go into our build folder and change all routes that look like this into routes that just start with `/`. While we could fire up vim and do just that we can instead use the power of BASH commands to make this change in one command.
+> 
+> ```
+> sudo grep -rl localhost /var/www/html | xargs sed -i 's/http:\/\/localhost:8000//g'
+> ```
+>
+> - This command will use grep (Global Regular Expression Print) to find all lines that contain the string "localhost" and pipe them into sed (Stream Editor) which will do a find and replace to remove the matching string.
+
+### Setting up the Back-End
+
+> 1. [ ] Next we need to retrieve the node_modules that we previously gitignored.
+> 
+> ```
+> cd ~/$repoName/server
+> npm i
+> ```
+>
+
+> 2. [ ] Next we need to get our Back-End server working. __First thing we'll need is a working MongoDB.__
+>
+> - __Note__ : some of these commands are very long, so each new command is prefaced by a "$".
+> ```
+> wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+> echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+> sudo apt update
+> sudo apt install -y mongodb-org
+> sudo service mongod start
+> service mongod status
+> ```
+>
+> - These commands will install MongoDB, start the MongoDB daemon, and display that daemon's status. You should see a message that looks like the following letting you know it's working.
+>
+> ![](assets/sect3.4_step2.png)
+
+> 3. [ ] __Next we'll Configure NGINX.__ The following commands will delete the old NGINX configuration and open the file in vim for us to copy in our new configuration.
+> 
+> ```
+> sudo rm /etc/nginx/sites-available/default
+> sudo vim /etc/nginx/sites-available/default
+> ```
+>
+
+> 4. [ ] Once inside vim use `i` to go into insert mode and paste in the following...
+> 
+> ```
+> # MERN-Deployment Configuration 1-16-2020
+> server {
+>    listen 80 default_server;
+>    listen [::]:80 default_server;
+>    root /var/www/html;
+>    index index.html index.htm index.nginx-debian.html;
+>    server_name MERN-Deployment;
+>    location /api {
+>        proxy_pass http://localhost:8000;
+>        proxy_http_version 1.1;
+>        proxy_set_header Upgrade $http_upgrade;
+>        proxy_set_header Connection 'upgrade';
+>        proxy_set_header Host $host;
+>        proxy_cache_bypass $http_upgrade;
+>    }
+>    location / {
+>        try_files $uri $uri/ =404;
+>    }
+>    error_page 404 /index.html;
+>}
+> ```
+>
+> - After pasting in this configuration you can escape vim by using `esc` followed by `:wq` and then `enter`.
+>
+> - This configuration will point all requests that start with `/api` to our Back-End and will > respond to every other request with our `index.html` file.
+>
+>     ***IMPORTANT:*** *If your back-end server runs on a port other than 8000 change the configuration file above to use that port.*
+
+> 5. [ ] Now that we have set up the configuration we can test to see if the Back-End is now connecting.
+> - __Note__ : some of these commands are very long, so each new command is prefaced by a "$".
+> ```
+> cd ~/$repoName/server
+> sudo service nginx restart
+> node server.js
+> ```
+>
+> - At this point our project should be working as long as the `node server.js` command is running.
+>
+> ![](assets/sect3.4_step5.png)
+
+### Wrapping up
+
+> 1. [ ] Our project is working, but as soon as we disconnect from the server instance our project will stop running. What we need is a process manager to keep our Back-End running. Enter pm2 (not surprisingly pm2 stands for __Process Manager 2__).
+> - __Note__ : some of these commands are very long, so each new command is prefaced by a "$".
+> ```
+> sudo npm i pm2 -g
+> pm2 start server.js
+> pm2 status
+> ```
+>
+> - These commands will install pm2 globally, tell pm2 to run `server.js` for us, and display the status of pm2.
+>
+> ![](assets/sect3.5_step1.png)
+>
+> - At this point if the status says "online" you are now finished deploying. Good job!
+
+### Updating your code and refreshing your installation
+
+> If you find a bug and want to fix it...or just add some fun extras so you can show this off to friends, do the following:
+> 1. Update your code and test it on your local computer.
+> 2. Stage and commit your code to your git repository using the command line or your VSCode editor's tools
+> 3. Push the changes up to github: `git push`
+>
+> Connect via SSH to your instance as described above:
+> 1. Change directory in to your project folder: `cd ~/MERN-Deployment`
+> 2. Stop the PM2 process daemon: `pm2 stop all`
+>    - This should stop the express/node server
+> 3. Pull the recent changes from github using: `git pull`
+> 4. Change directory in to the client folder: `cd client`
+> 5. Rebuild the React App: `npm run build`
+> 6. Stop the currently running nginx process:  
+>    1. `sudo service nginx stop`
+>    2. `sudo service nginx status` <-- verify that it is "inactive"
+> 7. Replace the running React App and remember to update the URLs using grep and sed:
+>    1. `sudo rm -rf /var/www/html`
+>    2. `sudo mv build /var/www/html`
+>    3. `sudo grep -rl localhost /var/www/html | xargs sed -i 's/http:\/\/localhost:8000//g'`
+> 8. Restart the PM2 process: `pm2 restart all`
+>    - This should restart your express/node server
+> 9. Restart the React app
+>    1. `sudo service nginx restart`
+>    2. `sudo service nginx status`  <-- verify that it is "active (running)"
+>
+> To view the server logs while using PM2, run the following command:
+> ```
+> sudo pm2 logscopy
+> ```
+>
+> To exit viewing the logs use: 
+> ```
+> CTRL + c
+> ```
