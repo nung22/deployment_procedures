@@ -101,6 +101,18 @@
 >     ***IMPORTANT:*** *change the `your_mysql_password` between the single quotes to the password you used in the above step*
 >
 >![](/AWS_Deployment_Java/assets/sect2.1_step2.png)
+>
+> ```
+> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+> ```
+>
+> ```
+> FLUSH PRIVILEGES;
+> ```
+>
+> ```
+> quit
+> ```
 
 > 3. [ ] The next installation will allow us to configure security settings. After exiting the mysql shell, back in your ubuntu remote server, enter the following command:
 > ```
