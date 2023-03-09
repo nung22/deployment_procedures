@@ -241,6 +241,10 @@
 >       ```
 >       - Add the proxy configuration at the bottom. Make sure to have it run on port 9090.<br/><br/>
 >       ![](/AWS_Deployment_Java/assets/sect4_step5.png)
+>       ```
+>       ProxyPass / ajp://localhost:9090/
+>       ProxyPassReverse / ajp://localhost:9090/
+>       ```
 
 > 6. Restart Apache.
 > ```
