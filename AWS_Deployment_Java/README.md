@@ -267,6 +267,7 @@
 > 2. Navigate to '/var/springApp' and run your application with the 'java -jar [ warFile ]'. For example:
 > 
 >       ```
+>       cd /var/springApp
 >       java -jar auth-0.0.1-SNAPSHOT.war
 >       ```
 >  - This will start your Spring Boot application. In your favorite browser, navigate to your public IP address and you should see your application.<br/><br/>
