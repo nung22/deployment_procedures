@@ -80,6 +80,9 @@
 > 1. [ ] Next, we will need to install our MySQL server:
 > ```
 > sudo apt-get install mysql-server                      // answer Yes when prompted!
+> ```
+>
+> ```
 > sudo apt-get update
 > ```
 >
